@@ -19,6 +19,10 @@ plugins {
     kotlin("kapt") version "1.3.40"
 }
 
+apply {
+    from("gradle/docker.gradle.kts")
+}
+
 group = "com.navid.test"
 version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
