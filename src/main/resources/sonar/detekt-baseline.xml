@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+    <Blacklist timestamp="1543921060972"/>
+    <Whitelist timestamp="1544022595395">
+        <ID>SpreadOperator:CreditCardApplication.kt$(*args)</ID>
+        <ID>SpreadOperator:SearchUtil.kt$SearchUtil$(*conditions.toTypedArray())</ID>
+        <ID>TooManyFunctions:PageableResolver.kt$PageableResolver$MockNative : NativeWebRequest</ID>
+    </Whitelist>
+</SmellBaseline>

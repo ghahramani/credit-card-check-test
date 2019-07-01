@@ -1,0 +1,2 @@
+filebeat: $FILE_BEAT_HOME/filebeat -c $FILE_BEAT_HOME/filebeat.yml -path.home $FILE_BEAT_HOME -path.data $FILE_BEAT_HOME/data -path.logs $FILE_BEAT_HOME/logs
+app: java ${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom -jar "${HOME}/app.war" "$@"

@@ -1,0 +1,13 @@
+filebeat.inputs:
+
+- type: log
+  paths:
+  - ${HOME}/logs/*.json
+  exclude_files: [".gz$"]
+  encoding: utf-8
+
+name: filebeat
+
+output.logstash:
+    enabled: true
+    hosts: ["${LOGSTASH_URI}"]

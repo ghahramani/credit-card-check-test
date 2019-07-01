@@ -1,0 +1,44 @@
+# ===================================================================
+# Spring Boot configuration for the "env" profile.
+#
+# This configuration overrides the application.yml and application-dev.yml or application-prod.yml file.
+#
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+spring:
+    data:
+        mongodb:
+            uri: ${MONGODB_URI}
+    mail:
+        host: ${EMAIL_HOST}
+        port: ${EMAIL_PORT:25}
+        username: ${EMAIL_USERNAME}
+        password: ${EMAIL_PASSWORD}
+    rabbitmq:
+        addresses: ${RABBITMQ_URI}
+
+server:
+    port: 8080
+
+# ===================================================================
+# Application specific properties
+# ===================================================================
+
+app:
+    cache: # Cache configuration
+        hazelcast: # Hazelcast distributed cache
+            management-center: # Full reference is available at: http://docs.hazelcast.org/docs/management-center/3.9/manual/html/Deploying_and_Starting.html
+                url: ${HAZELCAST_MANAGEMENT_URI}
+    security:
+        authentication:
+            jwt:
+                secret: ${JWT_SECRET}
+    mail: # specific mail property, for standard properties see MailProperties
+        from: ${EMAIL_FROM}
+        base-url: ${APPLICATION_DOMAIN} # Modify according to your server's URL

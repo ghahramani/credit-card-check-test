@@ -1,0 +1,100 @@
+# ===================================================================
+# Spring Boot configuration.
+#
+# This configuration will be overridden by the Spring profile you use,
+# for example application-dev.yml if you use the "dev" profile.
+#
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+management:
+    info:
+        git:
+            mode: full
+    health:
+        mail:
+            enabled: false # When using the MailService, configure an SMTP server and set this to true
+    metrics:
+        export:
+            prometheus:
+                enabled: true
+            jmx:
+                enabled: true
+                domain: ${spring.application.name}
+    endpoint:
+        health:
+            show-details: when_authorized
+        prometheus:
+            enabled: ${management.metrics.export.prometheus.enabled}
+    endpoints:
+        web:
+            exposure:
+                include: health,info,prometheus,metrics
+
+spring:
+    data:
+        mongodb:
+            database: credit_cards
+            migration:
+                enabled: true
+            repositories:
+                type: reactive
+    jackson:
+        serialization:
+            write_dates_as_timestamps: false
+    messages:
+        basename: i18n/messages
+    mvc:
+        favicon:
+            enabled: false
+    resources:
+        cache:
+            cachecontrol:
+                cache-public: true
+                max-age: 1461D
+                s-max-age: 1461D
+    thymeleaf:
+        mode: HTML
+    sleuth:
+        sampler:
+            probability: 1.0
+        messaging:
+            rabbit:
+                enabled: true
+    zipkin: # Use the "zipkin" Gradle profile to have the Spring Cloud Zipkin dependencies
+        sender:
+            type: rabbit
+
+#    webflux:
+#        date-format: dd/MM/yyyy
+
+# Properties to be exposed on the /actuator/info management endpoint
+info:
+    project:
+        version: #project.version#
+        # Comma separated list of profiles
+        profiles: #spring.profiles.active#
+
+# ===================================================================
+# Application specific properties
+# ===================================================================
+
+app:
+    async:
+        core-pool-size: 2
+        max-pool-size: 50
+        queue-capacity: 10000
+
+        # By default CORS is disabled. Uncomment to enable.
+        #cors:
+        #allowed-origins: "*"
+        #allowed-methods: "*"
+        #allowed-headers: "*"
+        #exposed-headers: "Authorization,Link,X-Total-Count"
+        #allow-credentials: true
+        #max-age: 1800

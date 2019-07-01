@@ -1,0 +1,94 @@
+# ===================================================================
+# Spring Boot configuration.
+#
+# This configuration is used for unit/integration tests.
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+logging:
+    level:
+        ROOT: INFO
+        com.navid.test: DEBUG
+
+spring:
+    data:
+        mongodb:
+            port: 0
+            database: test
+            host: localhost
+    jackson:
+        serialization:
+            write_dates_as_timestamps: false
+    cache:
+        type: simple
+    mail:
+        host: localhost
+    messages:
+        basename: i18n/messages
+    mvc:
+        favicon:
+            enabled: false
+    thymeleaf:
+        mode: HTML
+    resources:
+        cache:
+            cachecontrol:
+                cache-public: true
+                max-age: 1461D
+                s-max-age: 1461D
+    rabbitmq:
+        addresses: amqp://admin:admin@localhost
+    zipkin:
+        enabled: false
+    sleuth:
+        enabled: false
+server:
+    port: 10344
+    address: localhost
+
+management:
+    metrics:
+        use-global-registry: false
+        enable:
+            all: false
+        export:
+            elastic:
+                enabled: false
+# Properties to be exposed on the /actuator/info management endpoint
+info:
+    project:
+        version: #project.version#
+        # Comma separated list of profiles
+        profiles: #spring.profiles.active#
+
+# ===================================================================
+# Application specific properties
+# ===================================================================
+
+app:
+    cache: # Cache configuration
+        hazelcast: # Hazelcast distributed cache
+            time-to-live-seconds: 3600
+            backup-count: 1
+            management-center: # Full reference is available at: http://docs.hazelcast.org/docs/management-center/3.9/manual/html/Deploying_and_Starting.html
+                enabled: true
+                update-interval: 3
+                url: http://localhost:8180/mancenter
+    async:
+        core-pool-size: 1
+        max-pool-size: 50
+        queue-capacity: 10000
+    security:
+        authentication:
+            jwt:
+                secret: 3496f36af87b432f7ff08959ca9538dd96f79bd5
+                # Token is valid 24 hours
+                token-validity-in-seconds: 86400
+    mail:
+        from: test@localhost
+        base-url: http://127.0.0.1:8080
