@@ -53,8 +53,6 @@ class SecurityConfiguration {
             .pathMatchers("/i18n/**/*.json").permitAll()
             .pathMatchers("/assets/**").permitAll()
             .pathMatchers("/v2/api-docs/**").permitAll()
-            .pathMatchers("/swagger-resources/configuration/ui").permitAll()
-            .pathMatchers("/swagger-ui/index.html").hasAuthority(with(AppConstants.Security.Authority) { PREFIX + ACTUATOR })
 
             .pathMatchers(HttpMethod.POST, "/api/account/authenticate").permitAll()
             .pathMatchers("/api/account/reset-password/init").permitAll()

@@ -35,8 +35,6 @@ dist/
 nbdist/
 .nb-gradle/
 
-!**/swagger-ui/dist/
-
 # IDEs and editors
 /.idea
 .project
