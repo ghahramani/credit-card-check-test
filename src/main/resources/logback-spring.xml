@@ -73,7 +73,6 @@
     <logger name="ch.qos.logback" level="WARN"/>
     <logger name="com.codahale.metrics" level="WARN"/>
     <logger name="com.hazelcast" level="INFO"/>
-    <logger name="org.thymeleaf" level="WARN"/>
     <logger name="org.reflections" level="WARN"/>
     <logger name="reactor.ipc.netty" level="INFO"/>
     <logger name="reactor.netty" level="INFO"/>

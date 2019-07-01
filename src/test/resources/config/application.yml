@@ -33,8 +33,6 @@ spring:
     mvc:
         favicon:
             enabled: false
-    thymeleaf:
-        mode: HTML
     resources:
         cache:
             cachecontrol:

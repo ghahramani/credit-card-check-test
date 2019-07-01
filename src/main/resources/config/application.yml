@@ -58,8 +58,6 @@ spring:
                 cache-public: true
                 max-age: 1461D
                 s-max-age: 1461D
-    thymeleaf:
-        mode: HTML
     sleuth:
         sampler:
             probability: 1.0

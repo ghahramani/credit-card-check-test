@@ -1,10 +1,8 @@
-FROM registry.avantiplc.net/avanti/java:2
+FROM anapsix/alpine-java:8_server-jre_unlimited
 MAINTAINER Navid Ghahremani <ghahramani.navid@gmail.com>
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS
 ENV JAVA_OPTS=""
-ENV PYTHONIOENCODING=utf8
-ENV PYTHONUNBUFFERED=false
 
 ARG USER=docker
 ARG USER_ID=1000
@@ -12,6 +10,11 @@ ARG HOME=/home/$USER
 ARG FILE_BEAT_VERSION=filebeat-6.5.4-linux-x86_64
 
 ENV FILE_BEAT_HOME=$HOME/filebeat
+
+RUN apt-get update --fix-missing && \
+    apt-get install -y stunnel python-pip && \
+    rm -rf /var/lib/apt/lists/*
+RUN pip install honcho
 
 # Add a docker user to run our application so that it doesn't need to run as root
 RUN groupadd $USER -g $USER_ID

@@ -22,8 +22,6 @@ spring:
             enabled: false
         livereload:
             enabled: false
-    thymeleaf:
-        cache: true
 
 server:
     port: 8080

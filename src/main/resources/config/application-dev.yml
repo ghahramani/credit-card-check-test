@@ -32,8 +32,6 @@ spring:
         port: 25
         username:
         password:
-    thymeleaf:
-        cache: false
     rabbitmq:
         addresses: amqp://admin:admin@localhost
 
