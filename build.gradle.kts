@@ -20,6 +20,7 @@ plugins {
 }
 
 apply {
+    from("gradle/utils.gradle.kts")
     from("gradle/docker.gradle.kts")
 }
 

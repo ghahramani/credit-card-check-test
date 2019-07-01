@@ -15,7 +15,13 @@ apply(plugin = "com.bmuschko.gradle.docker.DockerRemoteApiPlugin")
 
 tasks {
 
+    val stage by existing
+
     val copyDockerFiles by registering(Copy::class) {
+        if (project.utils.isBuildingEnabled()) {
+            dependsOn(stage)
+        }
+
         description = "Copy Dockerfile and required data to build directory"
         from("src/main/docker", "${project.buildDir}/libs")
         into("${project.buildDir}/docker")
@@ -31,7 +37,7 @@ tasks {
         registryCredentials.url.set(project.utils.determineDockerRegistryURL())
     }
 
-    val pushDockerImageWithVersion by registering(DockerPushImage::class){
+    val pushDockerImageWithVersion by registering(DockerPushImage::class) {
         imageName.set(project.utils.determineDockerRegistryHost().plus(project.name))
         tag.set(project.utils.determineTagPrefix() + project.version)
         registryCredentials.url.set(project.utils.determineDockerRegistryURL())
@@ -39,7 +45,7 @@ tasks {
 
         val username = project.utils.determineDockerUsername()
         if (username.isEmpty().not()) {
-            registryCredentials.username.set( username)
+            registryCredentials.username.set(username)
         }
 
         val password = project.utils.determineDockerPassword()
@@ -48,15 +54,15 @@ tasks {
         }
     }
 
-    val pushDockerImageWithLatest by registering(DockerPushImage::class){
-        imageName.set(project.utils.determineDockerRegistryHost().plus(project.name))
+    val pushDockerImageWithLatest by registering(DockerPushImage::class) {
+        imageName.set(Utils.determineDockerRegistryHost().plus(project.name))
         tag.set("${project.utils.determineTagPrefix()}latest")
         registryCredentials.url.set(project.utils.determineDockerRegistryURL())
         enabled = project.utils.determineDockerRegistryHost().isEmpty().not()
 
         val username = project.utils.determineDockerUsername()
         if (username.isEmpty().not()) {
-            registryCredentials.username.set( username)
+            registryCredentials.username.set(username)
         }
 
         val password = project.utils.determineDockerPassword()
@@ -65,30 +71,8 @@ tasks {
         }
     }
 
-}
-
-/*
-
-task pushDockerImageWithLatest(type: DockerPushImage) {
-    imageName = project.utils.determineDockerRegistryHost().plus(project.name)
-    tag = "${project.utils.determineTagPrefix()}latest".toString()
-    registryCredentials.url = project.utils.determineDockerRegistryURL()
-    enabled = !project.utils.determineDockerRegistryHost().isEmpty()
-
-    def username = project.utils.determineDockerUsername()
-    if (!username.isEmpty()) {
-        registryCredentials.username = username
+    "buildDocker" {
+        dependsOn(dockerImageBuild, pushDockerImageWithVersion, pushDockerImageWithLatest)
     }
 
-    def password = project.utils.determineDockerPassword()
-    if (!password.isEmpty()) {
-        registryCredentials.password = password
-    }
 }
-
-task buildDocker(dependsOn: [dockerImageBuild, pushDockerImageWithVersion, pushDockerImageWithLatest])
-
-if (project.utils.isBuildingEnabled()) {
-    copyDockerFiles.dependsOn 'stage'
-}
-*/
