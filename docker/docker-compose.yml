@@ -1,0 +1,30 @@
+version: "3.6"
+services:
+
+    mongo:
+        image: mongo
+        ports:
+        - 127.0.0.1:27017:27017
+
+    rabbitmq:
+        image: rabbitmq:3.7-management
+        environment:
+        - RABBITMQ_DEFAULT_USER=admin
+        - RABBITMQ_DEFAULT_PASS=admin
+        ports:
+        - 127.0.0.1:5672:5672
+        - 127.0.0.1:15672:15672
+
+    hazelcast-server:
+        image: hazelcast/hazelcast:3.11
+        stdin_open: true
+        tty: true
+        environment:
+            MIN_HEAP_SIZE: 1g
+            JAVA_OPTS: -Dinstance.name=machine-1 -Dgroup.name=dev -Dgroup.password=!Test12!
+            MANCENTER_URL: http://hazelcast:8080/hazelcast-mancenter
+
+    hazelcast-management:
+        image: hazelcast/management-center:3.11
+        ports:
+        - 127.0.0.1:8180:8080

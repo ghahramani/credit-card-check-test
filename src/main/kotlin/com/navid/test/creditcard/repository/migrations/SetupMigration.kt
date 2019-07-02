@@ -32,7 +32,7 @@ class SetupMigration {
 
         val systemUser = User(
             "system",
-            "\$2y\$10\$8mp9LLCI0QBh44XYhpSy/e96eKQgNlK3xp9nhBg9lb3rxe5GVTVjq",
+            "\$2a\$10\$Sasl6A0PcYFO5ubDJioOWOe7/ThZ1qMzm0vWGGQw9Vb7QxMK.TSU6",
             langKey = "en"
         )
         systemUser.id = "user-0"
@@ -42,7 +42,7 @@ class SetupMigration {
 
         val adminUser = User(
             "admin",
-            "\$2y\$10\$h7LxAx01hCLa.FJQUJbSvOrT92ttYUvm2V8TsSZaa9onTTC1I1JUy",
+            "\$2a\$10\$4HsckIHTKJOTMEmre6.Uo.9RVrE9xPFm7yox4mACyEnPlu3VRp/9G",
             langKey = "en"
         )
         adminUser.id = "user-1"
@@ -54,7 +54,7 @@ class SetupMigration {
 
         val userUser = User(
             "user",
-            "\$2y\$10\$jjYb80qw74rDKgu15rKxdOc/GHiPdZ7z7E.YXzGUm2wn2/4dJ9uUe",
+            "\$2a\$10\$hUGvgS.EuutOqJRVd.ZZeOlU/ATjtuHJ90qt2wk.evTfxAma9JD6O",
             langKey = "en"
         )
         userUser.id = "user-2"
@@ -66,8 +66,18 @@ class SetupMigration {
 
     @ChangeSet(order = "03", author = "navid", id = "03-addBanks")
     fun addBanks(mongoTemplate: MongoTemplate) {
-        mongoTemplate.save(Bank("HSBC Canada"))
-        mongoTemplate.save(Bank("Royal Bank of Canada"))
-        mongoTemplate.save(Bank("American Express"))
+        val banks = arrayOf(
+            "Visa",
+            "Maestro",
+            "MasterCard",
+            "Discover",
+            "Diners Club",
+            "JBC",
+            "Amex",
+            "Unknown",
+            "China UnionPay"
+        )
+
+        banks.map(::Bank).map(mongoTemplate::save)
     }
 }

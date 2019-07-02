@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.mongo.MongoProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.config.EnableMongoAuditing
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions
@@ -43,11 +44,17 @@ class MongoConfiguration {
     }
 
     @Bean
-    fun mongobee(mongoClient: MongoClient, mongoTemplate: MongoTemplate, mongoProperties: MongoProperties): Mongobee {
+    fun mongobee(
+        mongoClient: MongoClient,
+        mongoTemplate: MongoTemplate,
+        mongoProperties: MongoProperties,
+        environment: Environment
+    ): Mongobee {
         logger.debug("Configuring Mongobee")
         val mongobee = Mongobee(mongoClient)
         mongobee.setDbName(mongoProperties.database)
         mongobee.setMongoTemplate(mongoTemplate)
+        mongobee.setSpringEnvironment(environment)
         // package to scan for migrations
         mongobee.setChangeLogsScanPackage("com.navid.test.creditcard.repository.migrations")
         mongobee.isEnabled = true

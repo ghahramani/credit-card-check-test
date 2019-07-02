@@ -10,9 +10,11 @@ import com.navid.test.creditcard.service.util.BaseMongoService
 import org.simpleflatmapper.csv.CsvMapperFactory
 import org.simpleflatmapper.csv.CsvParser
 import org.simpleflatmapper.util.TypeReference
+import org.springframework.core.io.buffer.DataBufferUtils
 import org.springframework.data.domain.Pageable
+import org.springframework.http.codec.multipart.Part
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
+import reactor.core.publisher.Mono
 import reactor.core.publisher.toFlux
 import java.time.YearMonth
 import java.time.ZoneId
@@ -38,61 +40,74 @@ class CardService(
 
     fun findByNumber(number: String) = repository.findOneByNumber(number)
 
-    fun saveFromCSV(username: String, filePart: MultipartFile) =
+    fun saveFromCSV(username: String, filePart: Part) =
         // TODO: better to use coroutine
         userService.findByUsername(username)
             .flatMapMany { user ->
-                filePart.inputStream.bufferedReader()
-                    .use { reader ->
-                        // Using skip(1) to skip the header in CSV
-                        val mapper = generateCsvMapper()
+                DataBufferUtils.join(filePart.content())
+                    .flatMapMany { buffer ->
+                        buffer.asInputStream().bufferedReader()
+                            .use { reader ->
+                                // Using skip(1) to skip the header in CSV
+                                val mapper = generateCsvMapper()
 
-                        CsvParser
-                            .mapWith(mapper)
-                            // Copying the whole CSV to memory is not efficent but it does the job for the test
-                            .stream(reader.readText())
-                            .toFlux()
-                            .flatMap { items ->
-                                items["expiryDate"] = YearMonth.parse(items["expiryDate"] as String, formatter)
+                                CsvParser
+                                    .mapWith(mapper)
+                                    // Copying the whole CSV to memory is not efficent but it does the job for the test
+                                    .stream(reader.readText())
+                                    .toFlux()
+                                    .flatMap { items ->
+                                        items["expiryDate"] = YearMonth.parse(items["expiryDate"] as String, formatter)
 
-                                val entity = objectMapper.convertValue<CardCSVDTO>(items)
-                                entity.number = entity.number?.replace("-", "")
+                                        val entity = objectMapper.convertValue<CardCSVDTO>(items)
+                                        entity.number = entity.number?.replace("-", "")
 
-                                if (entity.bank.isNullOrEmpty()) {
-                                    logger.warn("Bank name is empty, maybe the row is blank in CSV file")
-                                    throw IllegalArgumentException("Bank name is empty")
-                                }
+                                        if (entity.bank.isNullOrEmpty()) {
+                                            logger.warn("Bank name is empty, maybe the row is blank in CSV file")
+                                            throw IllegalArgumentException("Bank name is empty")
+                                        }
 
-                                if (entity.type == null) {
-                                    logger.warn("Card type is empty, maybe the row is blank in CSV file")
-                                    throw IllegalArgumentException("Card type is empty")
-                                }
+                                        if (entity.type == null) {
+                                            logger.warn("Card type is empty, maybe the row is blank in CSV file")
+                                            throw IllegalArgumentException("Card type is empty")
+                                        }
 
-                                if (entity.expiryDate == null) {
-                                    logger.warn("Card expiry date is empty, maybe the row is blank in CSV file")
-                                    throw IllegalArgumentException("Card expiry date is empty")
-                                }
+                                        if (entity.expiryDate == null) {
+                                            logger.warn("Card expiry date is empty, maybe the row is blank in CSV file")
+                                            throw IllegalArgumentException("Card expiry date is empty")
+                                        }
 
-                                if (entity.number.isNullOrEmpty()) {
-                                    logger.warn("Card number is empty, maybe the row is blank in CSV file")
-                                    throw IllegalArgumentException("Card number is empty")
-                                }
+                                        if (entity.number.isNullOrEmpty()) {
+                                            logger.warn("Card number is empty, maybe the row is blank in CSV file")
+                                            throw IllegalArgumentException("Card number is empty")
+                                        }
 
-                                bankService.findByName(entity.bank as String)
-                                    .flatMap {
-                                        create(
-                                            Card(
-                                                bank = it,
-                                                type = entity.type as CardType,
-                                                expiryDate = entity.expiryDate as YearMonth,
-                                                number = entity.number as String,
-                                                user = user
-                                            )
-                                        )
+                                        bankService.findByName(entity.bank as String)
+                                            .flatMap {
+                                                save(
+                                                    Card(
+                                                        bank = it,
+                                                        type = entity.type as CardType,
+                                                        expiryDate = entity.expiryDate as YearMonth,
+                                                        number = entity.number as String,
+                                                        user = user
+                                                    )
+                                                )
+                                            }
                                     }
                             }
+
                     }
             }
+
+    private fun save(card: Card): Mono<Card> {
+        return findByNumber(card.number)
+            .onErrorResume { create(card) }
+            .flatMap { entity ->
+                card.id = entity.id
+                update(card)
+            }
+    }
 
     private fun generateCsvMapper() =
         CsvMapperFactory

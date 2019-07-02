@@ -7,15 +7,14 @@
 
 ## Run the project with docker
 
-- Go back to the root folder and go to `docker/app` folder
+- Go to `docker` folder
 - Then run
 ```
-docker-compose up -d && docker-compose logs -f --tail=30 app | grep -Ev "(metrics|mongo)"
+docker-compose up -d
 ```
-
-Please wait till the server is showing startup message
-- After that you can navigate to http://localhost:8080 to see the application
-- We have two users
+- Then we need to run the application by IDE or Gradle, for gradle run `./gradlew bootRun` and for IDE run `CreditCardApplication` class
+- After that you can navigate to http://localhost:8080 to see the application (You should see not found error in json format)
+- We have two functional users
 
 ```
 1-
@@ -26,20 +25,72 @@ Please wait till the server is showing startup message
  password: user
 ```
 
-- Before we finish this section, we have sonar for analyzing Java code quality, to use it you need to go `docker/sonar` folder then run the command below:
-- The sonar username/password is `admin/admin`
-```
-docker-compose up -d && docker-compose logs -f --tail=30 project-validation
-```
-If you saw it says `BUILD SUCCESS` so it is the time to go `http://localhost:9000` to see the code quality ( AAA )
+## Endpoints
 
+##### Login (You need to copy the token from this endpoint and paste it to endpoints below)
+```
+curl -X POST \
+  http://localhost:8080/api/account/authenticate \
+  -H 'Content-Type: application/json' \
+  -d '{
+	"username": "admin",
+	"password": "admin",
+	"remember": true
+      }'
+```
+
+##### Banks List
+```
+curl -X GET \
+  http://localhost:8080/api/banks \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlkIjoidXNlci0xIiwiZXhwIjoxNTY0NjE3MzA3fQ.4zlkN2Imcaq6eE3-XKEghk-qU7bDNk5Ar4A34EzUs-JUI60een3PQndnc0UF2hctw2RW-1X8Ef_SDFBEVXGfmQ'
+```
+
+##### Upload CSV (Blocking)
+```
+curl -X POST \
+  http://localhost:8080/api/cards/csv \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlkIjoidXNlci0xIiwiZXhwIjoxNTY0NjE3MzA3fQ.4zlkN2Imcaq6eE3-XKEghk-qU7bDNk5Ar4A34EzUs-JUI60een3PQndnc0UF2hctw2RW-1X8Ef_SDFBEVXGfmQ' \
+  -H 'content-type: multipart/form-data' \
+  -F file=@/opt/project/src/test/resources/static/sample-test.csv
+```
+
+##### Upload CSV (Streaming)
+```
+curl -X POST \
+  http://localhost:8080/api/cards/csv \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlkIjoidXNlci0xIiwiZXhwIjoxNTY0NjE3MzA3fQ.4zlkN2Imcaq6eE3-XKEghk-qU7bDNk5Ar4A34EzUs-JUI60een3PQndnc0UF2hctw2RW-1X8Ef_SDFBEVXGfmQ' \
+  -H 'content-type: multipart/form-data' \
+  -H 'Accept: application/stream+json' \
+  -F file=@/opt/project/src/test/resources/static/sample-test.csv
+```
+
+or
+
+```
+curl -X POST \
+  http://localhost:8080/api/cards/csv \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlkIjoidXNlci0xIiwiZXhwIjoxNTY0NjE3MzA3fQ.4zlkN2Imcaq6eE3-XKEghk-qU7bDNk5Ar4A34EzUs-JUI60een3PQndnc0UF2hctw2RW-1X8Ef_SDFBEVXGfmQ' \
+  -H 'content-type: multipart/form-data' \
+  -H 'Accept: text/event-stream' \
+  -F file=@/opt/project/src/test/resources/static/sample-test.csv
+```
+
+##### Cards List
+```
+curl -X GET \
+  http://localhost:8080/api/cards \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlkIjoidXNlci0xIiwiZXhwIjoxNTY0NjE3MzA3fQ.4zlkN2Imcaq6eE3-XKEghk-qU7bDNk5Ar4A34EzUs-JUI60een3PQndnc0UF2hctw2RW-1X8Ef_SDFBEVXGfmQ'
+```
+
+##### For more endpoints you can check out the web.rest package (It follows all RestAPI methods such as: DELETE, GET, POST, PUT, ...)
 
 ## Description
 You can do all CRUD operations on bank entity and card entity
 
 - Saving cards has some limitations which I listed below:
 ```
-- If you upload CSV with exist data, it will update them and creat those are not exist
+If you upload CSV with exist data, it will update them and create those are not exist
 ```
 - And saving/deleting bank entity can operate only by admin
 
@@ -47,7 +98,3 @@ You can do all CRUD operations on bank entity and card entity
 
 ## CSV Upload
 To upload csv I created a sample file to know about the structure, it is located in following path `/app/src/main/resources/static/sample.csv`
-
-
-## Debugging
-To debug the code you need to go to commons.env and uncomment the line starts with #JVM_ARGUMENTS then you can connect to application with port 5005
