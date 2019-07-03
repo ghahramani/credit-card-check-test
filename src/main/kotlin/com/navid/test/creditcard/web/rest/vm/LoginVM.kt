@@ -15,7 +15,7 @@ data class LoginVM @JvmOverloads constructor(
     val username: String,
 
     @NotEmpty
-    @Size(min = 5, max = 100)
+    @Size(min = 4, max = 100)
     val password: String,
 
     val remember: Boolean = false

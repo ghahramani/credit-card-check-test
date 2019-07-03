@@ -47,22 +47,26 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-jmx")
     implementation("io.micrometer:micrometer-registry-prometheus")
 
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("org.springframework.boot:spring-boot-starter-mail")
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-starter-logging")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
+    "org.springframework.boot:spring-boot-starter".let { base ->
+        implementation("$base-actuator")
+        implementation("$base-cache")
+        implementation("$base-mail")
+        implementation("$base-data-mongodb-reactive")
+        implementation("$base-security")
+        implementation("$base-webflux")
+        implementation("$base-logging")
+        implementation("$base-validation")
+    }
 
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.module:jackson-module-afterburner")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-json-org")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-hppc")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-    implementation("com.fasterxml.jackson.core:jackson-annotations")
-    implementation("com.fasterxml.jackson.core:jackson-databind")
+    "com.fasterxml.jackson".let { base ->
+        implementation("$base.module:jackson-module-kotlin")
+        implementation("$base.module:jackson-module-afterburner")
+        implementation("$base.datatype:jackson-datatype-json-org")
+        implementation("$base.datatype:jackson-datatype-hppc")
+        implementation("$base.datatype:jackson-datatype-jsr310")
+        implementation("$base.core:jackson-annotations")
+        implementation("$base.core:jackson-databind")
+    }
 
     implementation("org.apache.commons:commons-lang3")
 
@@ -78,9 +82,6 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-stream-binder-rabbit")
     implementation("org.springframework.retry:spring-retry")
     implementation("org.springframework:spring-context-support")
-
-    // Loads service discovery
-    implementation("org.springframework.cloud:spring-cloud-starter-consul-discovery")
 
     // Loads sleuth and zipkin
     implementation("org.springframework.cloud:spring-cloud-starter-zipkin")

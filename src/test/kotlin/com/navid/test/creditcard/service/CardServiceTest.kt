@@ -15,9 +15,12 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.core.io.buffer.DataBufferUtils
+import org.springframework.core.io.buffer.DefaultDataBufferFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
-import org.springframework.mock.web.MockMultipartFile
+import org.springframework.http.HttpHeaders
+import org.springframework.http.codec.multipart.Part
 import org.springframework.test.context.junit4.SpringRunner
 import reactor.core.publisher.Flux
 import reactor.test.test
@@ -113,9 +116,15 @@ class CardServiceTest : BaseServiceTest<Card, CardRepository, CardService>() {
         )
 
         bankRepository.saveAll(banks.map(::Bank)).collectList().block()
-
         val inputFile = javaClass.classLoader.getResourceAsStream("static/sample-test.csv") ?: throw Exception("Unable to open CSV file")
-        val file = MockMultipartFile("file", "sample-test.csv", "multipart/form-data", inputFile)
+        val file = object : Part {
+            override fun content() =
+                DataBufferUtils.readInputStream({ inputFile }, DefaultDataBufferFactory(true), 4096)
+
+            override fun headers() = HttpHeaders.EMPTY
+
+            override fun name() = "sample-test.csv"
+        }
 
         service
             .all(PageRequest.of(0, 10))
